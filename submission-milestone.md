@@ -36,9 +36,11 @@ Please link to the lines (in GitHub) where the implementations of these features
 - [Tone Mapping](https://github.com/brown-cs-224/path-LizzySMB/blob/729fc31ef34dc1dbfc53fcca0fb8ec644fa9cd13/pathtracer.cpp#L88)
 
 <!-- ### Design Choices
+My tone-mapped lighting is different than the example output, but without the gamma my colors (I believe) are the same as the first expected output.
 
 ### Collaboration/References
 
 ### Known Bugs
+Not sure if this is a bug, but my noise looks slightly different than the example noise.
 
 ### Extra Credit -->
