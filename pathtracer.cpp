@@ -80,10 +80,12 @@ void PathTracer::toneMap(QRgb *imageData, std::vector<Vector3f> &intensityValues
             int offset = x + (y * m_width);
             Vector3f color = intensityValues[offset];
 
+
+
             // Old Mr. Reinhard
-            float colorr = color[0] / (color[0] + 1.f);
-            float colorg = color[1] / (color[1] + 1.f);
-            float colorb = color[2] / (color[2] + 1.f);
+            float colorr = (color[0] * (1 + color[0])) / (color[0] + 1.f);
+            float colorg = (color[1] * (1 + color[1])) / (color[1] + 1.f);
+            float colorb = (color[2] * (1 + color[2])) / (color[2] + 1.f);
             color = Vector3f(colorr, colorg, colorb);
 
             int r = static_cast<int>(std::min(255.0f, color.x() * 255.0f));
