@@ -33,7 +33,7 @@ Please link to the lines (in GitHub) where the implementations of these features
 
 - [Diffuse Reflection](https://github.com/brown-cs-224/path-LizzySMB/blob/729fc31ef34dc1dbfc53fcca0fb8ec644fa9cd13/pathtracer.cpp#L116)
 - [Indirect Illumination]()
-- [Tone Mapping]()
+- [Tone Mapping](https://github.com/brown-cs-224/path-LizzySMB/blob/729fc31ef34dc1dbfc53fcca0fb8ec644fa9cd13/pathtracer.cpp#L88)
 
 <!-- ### Design Choices
 
