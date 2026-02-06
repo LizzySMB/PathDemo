@@ -42,7 +42,7 @@ void PathTracer::traceScene(QRgb *imageData, const Scene& scene)
 Vector3f PathTracer::tracePixel(int x, int y, const Scene& scene, const Matrix4f &invViewMatrix)
 {
     Vector3f p(0, 0, 0);
-    Vector3f d((2.f * x / m_width) - 1, 1 - (2.f *  y / m_height), -1);
+    Vector3f d((2.f * (x + 0.5f) / m_width) - 1, 1 - (2.f * (y + 0.5f) / m_height), -1);
     d.normalize();
 
     Ray r(p, d);
@@ -140,7 +140,7 @@ Vector3f PathTracer::sampleNextDir(const Vector3f& normal)
 
     float phi = 2.0f * M_PI * sample1;
     float sinTheta = sqrt(sample2);
-    float cosTheta = sqrt(1.0f - sinTheta);
+    float cosTheta = sqrt(1.0f - sample2);
 
     Vector3f nextDir(sinTheta * cosf(phi), sinTheta * sinf(phi), cosTheta);
 
