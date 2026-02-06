@@ -33,7 +33,7 @@ Please link to the lines (in GitHub) where the implementations of these features
 
 - [Diffuse Reflection](https://github.com/brown-cs-224/path-LizzySMB/blob/729fc31ef34dc1dbfc53fcca0fb8ec644fa9cd13/pathtracer.cpp#L116)
 - [Indirect Illumination](https://github.com/brown-cs-224/path-LizzySMB/blob/729fc31ef34dc1dbfc53fcca0fb8ec644fa9cd13/pathtracer.cpp#L106)
-- [Tone Mapping](https://github.com/brown-cs-224/path-LizzySMB/blob/729fc31ef34dc1dbfc53fcca0fb8ec644fa9cd13/pathtracer.cpp#L88)
+- [Tone Mapping](https://github.com/brown-cs-224/path-LizzySMB/blob/729fc31ef34dc1dbfc53fcca0fb8ec644fa9cd13/pathtracer.cpp#L77)
 
 <!-- ### Design Choices
 My tone-mapped lighting is different than the example output, but without the gamma my colors (I believe) are the same as the first expected output.
