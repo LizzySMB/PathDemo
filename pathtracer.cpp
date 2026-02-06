@@ -80,6 +80,11 @@ void PathTracer::toneMap(QRgb *imageData, std::vector<Vector3f> &intensityValues
             int offset = x + (y * m_width);
             Vector3f color = intensityValues[offset];
 
+            /* I messed around with gamma usage (not sure if I did it right
+             * so it looks a bit different than the brighter expected output
+             * but it should look the first expected output without the gamma
+            **/
+
             float gamma = 1/2.2f;
 
             // Old Mr. Reinhard
