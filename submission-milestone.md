@@ -31,7 +31,7 @@ Please do not attempt to duplicate the given reference images; we have tools to 
 
 Please link to the lines (in GitHub) where the implementations of these features start:
 
-- [Diffuse Reflection](https://github.com/brown-cs-224/path-LizzySMB/blob/729fc31ef34dc1dbfc53fcca0fb8ec644fa9cd13/pathtracer.cpp#L116)
+- [Diffuse Reflection](https://github.com/brown-cs-224/path-LizzySMB/blob/729fc31ef34dc1dbfc53fcca0fb8ec644fa9cd13/pathtracer.cpp#L129)
 - [Indirect Illumination](https://github.com/brown-cs-224/path-LizzySMB/blob/729fc31ef34dc1dbfc53fcca0fb8ec644fa9cd13/pathtracer.cpp#L106)
 - [Tone Mapping](https://github.com/brown-cs-224/path-LizzySMB/blob/729fc31ef34dc1dbfc53fcca0fb8ec644fa9cd13/pathtracer.cpp#L77)
 
