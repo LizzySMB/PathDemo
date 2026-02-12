@@ -47,7 +47,7 @@ Vector3f PathTracer::tracePixel(int x, int y, const Scene& scene, const Matrix4f
 
     Ray r(p, d);
     r = r.transform(invViewMatrix);
-    return radiance(r.o, r.d, scene);
+    return radiance(r.o, r.d, true, scene);
 }
 
 Vector3f PathTracer::traceRay(const Ray& r, const Scene& scene)
@@ -88,10 +88,12 @@ void PathTracer::toneMap(QRgb *imageData, std::vector<Vector3f> &intensityValues
             float gamma = 1/2.2f;
 
             // Old Mr. Reinhard
-            float colorr = (color[0] * (1 + color[0])) / (color[0] + 1.f * gamma);
-            float colorg = (color[1] * (1 + color[1])) / (color[1] + 1.f * gamma);
-            float colorb = (color[2] * (1 + color[2])) / (color[2] + 1.f * gamma);
+            float colorr = (color[0] * (1 + color[0])) / (color[0] + 1.f);
+            float colorg = (color[1] * (1 + color[1])) / (color[1] + 1.f);
+            float colorb = (color[2] * (1 + color[2])) / (color[2] + 1.f);
             color = Vector3f(colorr, colorg, colorb);
+            color = color.array().pow(gamma);
+            color = color.cwiseMax(0.f).cwiseMin(1.f);
 
             int r = static_cast<int>(std::min(255.0f, color.x() * 255.0f));
             int g = static_cast<int>(std::min(255.0f, color.y() * 255.0f));
@@ -103,39 +105,47 @@ void PathTracer::toneMap(QRgb *imageData, std::vector<Vector3f> &intensityValues
 
 }
 
-Vector3f PathTracer::radiance(Vector3f& x, Vector3f& w, const Scene& scene) {
+Vector3f PathTracer::radiance(Vector3f& x, Vector3f& w, bool countEmitted, const Scene& scene) {
     IntersectionInfo i;
     Vector3f L = Vector3f(0,0,0);
-    if(scene.getIntersection(Ray(x, w), &i)) {
+    Ray r = Ray(x, w);
+    if(scene.getIntersection(r, &i)) {
         const Triangle *t = static_cast<const Triangle *>(i.data);//Get the triangle in the mesh that was intersected
         const tinyobj::material_t& mat = t->getMaterial();//Get the material of the triangle from the mesh
-        L = Vector3f(mat.emission[0], mat.emission[1], mat.emission[2]);
         const tinyobj::real_t *d = mat.diffuse;//Diffuse color as array of floats
         const std::string diffuseTex = mat.diffuse_texname;//Diffuse texture name
 
+        Vector3f negw = -w;
+
+        L = directLighting(i, negw, scene);
+
         Vector3f diffuse = Vector3f(mat.diffuse[0], mat.diffuse[1], mat.diffuse[2]);
-
-        // hard coding diffuse for milestone spheres - comment out otherwise
-        if (diffuse[0] < 0.1f && diffuse[1] < 0.1f && diffuse[2] < 0.1f) {
-            diffuse = Vector3f(1.0f, 1.0f, 1.0f);
-        }
-
-        Vector3f hitPoint = x + w * i.t;
-        Vector3f normal = t->getNormal(i);
-
-        Vector3f wi = sampleNextDir(normal);
-        float pdf = std::max(wi.dot(normal), 0.0f) / M_PI;
 
         Vector3f brdf = diffuse / M_PI;
 
-        Vector3f Li = radiance(hitPoint, wi, scene);
+        // added russian roulette
 
-        float cosine = std::max(wi.dot(normal), 0.0f);
+        float pdf_rr = settings.pathContinuationProb;
 
-        L += Li.cwiseProduct(brdf) * cosine / pdf;
+        if (distribution(generator) < pdf_rr && !settings.directLightingOnly) {
 
-       // wi, pdf = sampleNextDir()
-      //  L += radiance(i.hit, wi) * p.brdf(wi, w) * dot(wi, p.N) / pdf
+            Vector3f hitPoint = x + w * i.t;
+            Vector3f normal = t->getNormal(i);
+
+            Vector3f wi = sampleNextDir(normal);
+            float pdf = std::max(wi.dot(normal), 0.0f) / M_PI;
+            bool isIdealSpecular = diffuse[0] < 0.1f && diffuse[1] < 0.1f && diffuse[2] < 0.1f;
+
+            Vector3f Li = radiance(hitPoint, wi, isIdealSpecular, scene);
+
+            float cosine = std::max(wi.dot(normal), 0.0f);
+
+            L += Li.cwiseProduct(brdf) * cosine / (pdf * pdf_rr);
+        }
+
+        if (countEmitted) {
+            L += Vector3f(mat.emission[0], mat.emission[1], mat.emission[2]);
+        }
     }
     return L;
 }
@@ -161,4 +171,85 @@ Vector3f PathTracer::sampleNextDir(const Vector3f& normal)
     tany = normal.cross(tanx);
 
     return (nextDir.x() * tanx + nextDir.y() * tany + nextDir.z() * normal).normalized();
+}
+
+
+Vector3f PathTracer::directLighting(IntersectionInfo i, Vector3f& w, const Scene& scene) {
+    Vector3f L = Vector3f(0,0,0);
+
+    // i at surface point
+
+    const Triangle *objTri = static_cast<const Triangle *>(i.data);
+    const tinyobj::material_t& surfaceMat = objTri->getMaterial();
+    Vector3f diffuse = Vector3f(surfaceMat.diffuse[0], surfaceMat.diffuse[1], surfaceMat.diffuse[2]);
+    Vector3f spec = Vector3f(surfaceMat.specular[0], surfaceMat.specular[1], surfaceMat.specular[2]);
+
+    Vector3f brdf = diffuse / M_PI;
+
+    Vector3f normal = objTri->getNormal(i);
+
+
+    for (Triangle* light: scene.getEmissives()) {
+        Vector3f lightVal = Vector3f(0,0,0);
+
+        // sampling random points on the light triangle
+        for (int j = 0; j < settings.numDirectLightingSamples; j++) {
+            float r1 = distribution(generator);
+            float r2 = distribution(generator);
+
+            // work on sampling
+            float sqrt_r1 = sqrt(r1);
+            float u = 1.0f - sqrt_r1;
+            float v = r2 * sqrt_r1;
+            float w_bary = 1.0f - u - v;
+
+            // triangle vertices
+            Vector3f v0 = light->getVertices()[0];
+            Vector3f v1 = light->getVertices()[1];
+            Vector3f v2 = light->getVertices()[2];
+
+            // calculate random point + light direction
+            Vector3f lightPoint = u * v0 + v * v1 + w_bary * v2;
+            Vector3f lightDir = lightPoint - i.hit;
+            float distanceToLight = lightDir.norm();
+            lightDir.normalize();
+
+            float cosTheta = normal.dot(lightDir);
+            if (cosTheta <= 0.0f) {
+                continue;
+            }
+
+            // shadow check
+            Ray shadowRay(i.hit, lightDir);
+            IntersectionInfo shadowi;
+
+            bool shadowed = false;
+            if (scene.getIntersection(shadowRay, &shadowi)) {
+                if (shadowi.t < distanceToLight - 0.001f) {
+                    shadowed = true;
+                }
+            }
+
+            if (!shadowed) {
+
+                Vector3f lightNormal = light->getNormal(i.hit);
+                float cosPhiLight = -lightDir.dot(lightNormal);
+
+                if (cosPhiLight > 0.0f) {
+                    const tinyobj::material_t& lightMat = light->getMaterial();
+                    Vector3f emission = Vector3f(lightMat.emission[0], lightMat.emission[1], lightMat.emission[2]);
+
+                    float lightArea = light->getBBox().surfaceArea();
+                    float pdf = (distanceToLight * distanceToLight) / (lightArea * cosPhiLight);
+
+                    lightVal += emission.cwiseProduct(brdf) * cosTheta / pdf;
+                }
+
+
+            }
+        }
+
+        L += lightVal / settings.numDirectLightingSamples;
+    }
+    return L;
 }
