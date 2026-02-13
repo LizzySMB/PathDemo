@@ -42,8 +42,15 @@ void PathTracer::traceScene(QRgb *imageData, const Scene& scene)
 Vector3f PathTracer::tracePixel(int x, int y, const Scene& scene, const Matrix4f &invViewMatrix)
 {
     Vector3f p(0, 0, 0);
-    Vector3f d((2.f * (x + 0.5f) / m_width) - 1, 1 - (2.f * (y + 0.5f) / m_height), -1);
-    d.normalize();
+
+    float jitterX = distribution(generator) - 0.5f;
+    float jitterY = distribution(generator) - 0.5f;
+
+    // to get rid of jagged edges :)
+
+    Vector3f d((2.f * (x + 0.5f + jitterX) / m_width) - 1,
+               1 - (2.f * (y + 0.5f + jitterY) / m_height), -1);
+
 
     Ray r(p, d);
     r = r.transform(invViewMatrix);
@@ -187,21 +194,26 @@ Vector3f PathTracer::radiance(Vector3f& x, Vector3f& w, bool countEmitted, const
                     newDir.normalize();
                     pdf = fresnel;
                     Vector3f Li = radiance(hitPoint, newDir, true, scene, 1.f);
+                    Li = Li.cwiseMin(10.f);
                     L += Li.cwiseProduct(spec) / (pdf * pdf_rr);
                 }
                 else {
                     Vector3f refracted;
                     float costhetat = sqrt(1.0f - sin2thetat);
+
                     if (refract(w, refracnorm, nint, refracted)) {
 
                         Vector3f wi = nint * w + (nint * costhetai - costhetat) * refracnorm;
                         wi.normalize();
                         Vector3f Li = radiance(hitPoint, refracted, true, scene, nextior);
+
+                        Li = Li.cwiseMin(10.f);
                         L += Li.cwiseProduct(Vector3f(1,1,1)) / ((1.0f - fresnel) * pdf_rr);
                     } else {
                         Vector3f wi = nint * w + (nint * costhetai - costhetat) * refracnorm;
                         wi.normalize();
                         Vector3f Li = radiance(hitPoint, wi, true, scene, 1.f);
+                        Li = Li.cwiseMin(10.f);
                         L += Li.cwiseProduct(Vector3f(1,1,1)) / pdf_rr;
                     }
 
@@ -220,6 +232,8 @@ Vector3f PathTracer::radiance(Vector3f& x, Vector3f& w, bool countEmitted, const
 
                 // other specular glossy notes. split with diffuse from same material by specProb
                 float specProb = spec.norm() / (diffuse.norm() + spec.norm());
+                // for specular only like in image, uncomment:
+                // specProb = 1.f;
 
                 if (distribution(generator) < specProb) {
                     float shininess = mat.shininess;
@@ -362,7 +376,7 @@ Vector3f PathTracer::directLighting(IntersectionInfo i, Vector3f& w, const Scene
             }
 
             // shadow check
-            Ray shadowRay(i.hit + lightDir * 0.0001f, lightDir);
+            Ray shadowRay(i.hit + normal * 0.0001f, lightDir);
             IntersectionInfo shadowi;
 
             bool shadowed = false;
@@ -396,7 +410,7 @@ Vector3f PathTracer::directLighting(IntersectionInfo i, Vector3f& w, const Scene
                         totalContribution += emission.cwiseProduct(specbrdf) * cosTheta / pdf;
                     }
                 }
-                if (diffuse.norm() > 0.f) {
+                else if (diffuse.norm() > 0.1f) {
                     totalContribution += emission.cwiseProduct(brdf) * cosTheta / pdf;
                 }
                 lightVal += totalContribution;
