@@ -118,7 +118,7 @@ Vector3f PathTracer::radiance(Vector3f& x, Vector3f& w, bool countEmitted, const
 
         Vector3f diffuse = Vector3f(mat.diffuse[0], mat.diffuse[1], mat.diffuse[2]);
         Vector3f spec = Vector3f(mat.specular[0], mat.specular[1], mat.specular[2]);
-        Vector3f refrac = Vector3f(mat.transmittance[0], mat.transmittance[1], mat.transmittance[2]);
+        Vector3f emission = Vector3f(mat.emission[0], mat.emission[1], mat.emission[2]);
         float ior = mat.ior; // material quality i think
 
         bool refracts = false;
@@ -136,8 +136,10 @@ Vector3f PathTracer::radiance(Vector3f& x, Vector3f& w, bool countEmitted, const
 
         Vector3f negw = -w;
 
-        if (!isIdealSpecular && !refracts) {
-            L = directLighting(i, negw, scene);
+        if (emission.norm() == 0) {
+            if (!isIdealSpecular && !refracts) {
+                L = directLighting(i, negw, scene);
+            }
         }
 
         // added russian roulette
@@ -228,12 +230,12 @@ Vector3f PathTracer::radiance(Vector3f& x, Vector3f& w, bool countEmitted, const
                 Li = radiance(hitPoint, wi, true, scene, ior);
                 L += Li.cwiseProduct(brdf) / (pdf_rr);
             }
-            else if (illum == 2) {
+            else if (spec.norm() > 0.1f) {
 
                 // other specular glossy notes. split with diffuse from same material by specProb
                 float specProb = spec.norm() / (diffuse.norm() + spec.norm());
                 // for specular only like in image, uncomment:
-                //specProb = 1.f;
+                specProb = 1.f;
 
                 if (distribution(generator) < specProb) {
                     float shininess = mat.shininess;
@@ -241,15 +243,14 @@ Vector3f PathTracer::radiance(Vector3f& x, Vector3f& w, bool countEmitted, const
                     Vector3f reflected = w - 2.f * w.dot(normal) * normal;
                     reflected.normalize();
 
-                    wi = sampleNextDir(normal, shininess);
+                    wi = sampleNextDir(reflected, shininess);
                     float cosspec = std::max(0.f, wi.dot(reflected));
 
                     // phong brdf
                     brdf = spec * (shininess + 2.f) / (2.f * M_PI) * pow(cosspec, shininess);
 
                     // pdf for specular with importance sampling
-                  //  pdf = (shininess + 1.f) / (2.f * M_PI) * pow(cosspec, shininess);
-                    pdf = 1.f / (2.f * M_PI);
+                    pdf = (shininess + 1.f) / (2.f * M_PI) * pow(cosspec, shininess);
                     pdf *= specProb;
 
                     cos = std::max(0.f, wi.dot(normal));
@@ -258,7 +259,7 @@ Vector3f PathTracer::radiance(Vector3f& x, Vector3f& w, bool countEmitted, const
                     // diffuse portion of samples
                     wi = sampleNextDir(normal, 0);
                     brdf = diffuse / M_PI;
-                    pdf = std::max(wi.dot(normal), 0.0f) / M_PI;
+                    pdf = std::max(wi.dot(normal), 0.0f) / M_PI; // cos(theta) / pi
                     pdf *= (1.0f - specProb);
                     cos = wi.dot(normal);
                 }
@@ -273,7 +274,7 @@ Vector3f PathTracer::radiance(Vector3f& x, Vector3f& w, bool countEmitted, const
                 wi = sampleNextDir(normal, 0);
 
                 brdf = diffuse / M_PI;
-                pdf = std::max(wi.dot(normal), 0.0f) / M_PI;
+                pdf = std::max(wi.dot(normal), 0.0f) / M_PI; // cos(theta) / pi
 
                 Li = radiance(hitPoint, wi, false, scene, ior);
                 cos = std::max(wi.dot(normal), 0.0f);
@@ -296,14 +297,14 @@ Vector3f PathTracer::sampleNextDir(const Vector3f& normal, float shininess) {
     float phi = 2.0f * M_PI * sample1;
     float cosTheta;
     float sinTheta;
-  //  if (shininess < 0.01f) { // diffuse importance sampling
+    if (shininess < 0.01f) { // diffuse importance sampling with cosine weight
         cosTheta = sqrt(1.0f - sample2);
         sinTheta = sqrt(sample2);
- //   }
-  //  else { // specular importance sampling
- //       cosTheta = pow(sample2, 1.0f / (shininess + 1.0f));
-  //      sinTheta = sqrt(1.f - cosTheta * cosTheta);
-  //  }
+    }
+    else { // specular importance sampling around Phong lobe
+        cosTheta = pow(sample2, 1.0f / (shininess + 1.0f));
+        sinTheta = sqrt(1.f - cosTheta * cosTheta);
+    }
 
 
     Vector3f nextDir(sinTheta * cosf(phi), sinTheta * sinf(phi), cosTheta);
@@ -431,12 +432,8 @@ bool PathTracer::refract(const Vector3f& wi, const Vector3f& normal, float nint,
     float cosi = std::clamp(wi.dot(normal), -1.f, 1.f);
     float sin2t = nint * nint * (1.0f - cosi * cosi);
 
-    // check cosi - if negative, make positive. else swap nint
     if (cosi < 0.f) {
         cosi *= -1.f;
-    }
-    else {
-        //swap nint
     }
 
     // check for total internal reflection
