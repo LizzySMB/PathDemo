@@ -136,10 +136,8 @@ Vector3f PathTracer::radiance(Vector3f& x, Vector3f& w, bool countEmitted, const
 
         Vector3f negw = -w;
 
-        if (emission.norm() == 0) {
-            if (!isIdealSpecular && !refracts) {
-                L = directLighting(i, negw, scene);
-            }
+        if (!isIdealSpecular && !refracts) {
+            L = directLighting(i, negw, scene);
         }
 
         // added russian roulette
