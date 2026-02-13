@@ -42,16 +42,25 @@ Please link to the lines (in GitHub) where the implementation of these features 
 - [Russian Roulette path termination]()
 - [Event Splitting]()
 - [Tone Mapping]()
-- Any extra features
+- [Importance Sampling]() [pdfs here]()
 
 ### Design Choices
 
 Please list all the features your path tracer implements.
+Diffuse, Glossy, and Mirror Reflections, Refraction with Fresnel reflection, Soft Shadows, Indirect Illumination, Direct Lighting, Russian Roulette Path Termination, Event Splitting, Tone Mapping, and Importance Sampling.
 
 ### Extra Features
 
 Briefly explain your implementation of any extra features, provide output images, and describe what each image demonstrates.
 
+I implemented importance sampling for clearer images. Here is an example of regular vs. importance sampling on the glossy image.
+
+<img width="512" height="512" alt="glossy_no_is" src="https://github.com/user-attachments/assets/94601c5d-ef2e-4a37-beb6-dd39ee7f2da4" />
+
+I tried to implement diffuse brdf importance sampling as well, but I'm honestly not sure if what I have is just regular sampling, so I am trying 3 other extra features in case!
+
 ### Collaboration/References
+N/A
 
 ### Known Bugs
+N/A
