@@ -27,9 +27,10 @@ private:
 
     Eigen::Vector3f tracePixel(int x, int y, const Scene &scene, const Eigen::Matrix4f &invViewMatrix);
     Eigen::Vector3f traceRay(const Ray& r, const Scene &scene);
-    Eigen::Vector3f radiance(Eigen::Vector3f& x, Eigen::Vector3f& w, bool countEmitted, const Scene& scene);
-    Eigen::Vector3f sampleNextDir(const Eigen::Vector3f& normal);
+    Eigen::Vector3f radiance(Eigen::Vector3f& x, Eigen::Vector3f& w, bool countEmitted, const Scene& scene, float previor);
+    Eigen::Vector3f sampleNextDir(const Eigen::Vector3f& normal, float shininess);
     Eigen::Vector3f directLighting(IntersectionInfo i, Eigen::Vector3f& w, const Scene& scene);
+    bool refract(const Eigen::Vector3f& wi, const Eigen::Vector3f& normal, float eta, Eigen::Vector3f& refracted);
 };
 
 #endif // PATHTRACER_H
