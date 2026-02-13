@@ -43,11 +43,12 @@ Please link to the lines (in GitHub) where the implementation of these features 
 - [Event Splitting]()
 - [Tone Mapping]()
 - [Importance Sampling]() [pdfs here]()
+- [Attenuate Refracted Paths]()
 
 ### Design Choices
 
 Please list all the features your path tracer implements.
-Diffuse, Glossy, and Mirror Reflections, Refraction with Fresnel reflection, Soft Shadows, Indirect Illumination, Direct Lighting, Russian Roulette Path Termination, Event Splitting, Tone Mapping, and Importance Sampling.
+Diffuse, Glossy, and Mirror Reflections, Refraction with Fresnel reflection, Soft Shadows, Indirect Illumination, Direct Lighting, Russian Roulette Path Termination, Event Splitting, Tone Mapping, Importance Sampling, and Refracted Path Attenuation.
 
 ### Extra Features
 
@@ -57,10 +58,13 @@ I implemented importance sampling for clearer images. Here is an example of regu
 
 <img width="512" height="512" alt="glossy_no_is" src="https://github.com/user-attachments/assets/94601c5d-ef2e-4a37-beb6-dd39ee7f2da4" />
 
-I tried to implement diffuse brdf importance sampling as well, but I'm honestly not sure if what I have is just regular sampling, so I am trying 3 other extra features in case!
+I tried to implement diffuse brdf importance sampling as well, but I'm honestly not sure if what I have there is just regular sampling.
+
+I also used Beer-Lambert absorption to implement attenuated refracted paths. Here's a before and after: 
+<img width="512" height="512" alt="refraction_no_attenuation" src="https://github.com/user-attachments/assets/52ce926e-f9e6-4b35-956a-5af28fd8c798" />
 
 ### Collaboration/References
-N/A
+Beer-Lambert: https://www.geeksforgeeks.org/physics/beer-lambert-law/
 
 ### Known Bugs
 N/A
