@@ -205,15 +205,6 @@ Vector3f PathTracer::radiance(Vector3f& x, Vector3f& w, bool countEmitted, const
                         L += Li.cwiseProduct(Vector3f(1,1,1)) / pdf_rr;
                     }
 
-
-                //    float costhetat = sqrt(1.0f - sin2thetat);
-                 //   newDir = nint * w + (nint * costhetai - costhetat) * refracnorm;
-                //    newDir.normalize();
-                //    pdf = 1.0f - fresnel;
-
-
-                 //   Vector3f Li = radiance(hitPoint, newDir, true, scene, nextior);
-                 //   L += Li.cwiseProduct(Vector3f(1,1,1)) / (pdf * pdf_rr);
                 }
 
             }
@@ -225,7 +216,7 @@ Vector3f PathTracer::radiance(Vector3f& x, Vector3f& w, bool countEmitted, const
                 Li = radiance(hitPoint, wi, true, scene, ior);
                 L += Li.cwiseProduct(brdf) / (pdf_rr);
             }
-            else if (spec.norm() > 0.1f) {
+            else if (illum == 2) {
 
                 // other specular glossy notes. split with diffuse from same material by specProb
                 float specProb = spec.norm() / (diffuse.norm() + spec.norm());
@@ -233,20 +224,20 @@ Vector3f PathTracer::radiance(Vector3f& x, Vector3f& w, bool countEmitted, const
                 if (distribution(generator) < specProb) {
                     float shininess = mat.shininess;
 
-                    Vector3f reflected = w - 2.0f * w.dot(normal) * normal;
+                    Vector3f reflected = w - 2.f * w.dot(normal) * normal;
                     reflected.normalize();
 
                     wi = sampleNextDir(reflected, shininess);
-                    float cosspec = std::max(0.0f, wi.dot(reflected));
+                    float cosspec = std::max(0.f, wi.dot(reflected));
 
                     // phong brdf with importance sampling
-                    brdf = spec * (shininess + 2.0f) / (2.0f * M_PI) * pow(cosspec, shininess);
+                    brdf = spec * (shininess + 2.f) / (2.f * M_PI) * pow(cosspec, shininess);
 
                     // pdf for specular with importance sampling
-                    pdf = (shininess + 1.0f) / (2.0f * M_PI) * pow(cosspec, shininess);
+                    pdf = (shininess + 1.f) / (2.f * M_PI) * pow(cosspec, shininess);
                     pdf *= specProb;
 
-                    cos = std::max(0.0f, wi.dot(normal));
+                    cos = std::max(0.f, wi.dot(normal));
 
                 } else {
                     // diffuse portion of samples
@@ -371,12 +362,12 @@ Vector3f PathTracer::directLighting(IntersectionInfo i, Vector3f& w, const Scene
             }
 
             // shadow check
-            Ray shadowRay(i.hit + normal * 0.001f, lightDir);
+            Ray shadowRay(i.hit + lightDir * 0.0001f, lightDir);
             IntersectionInfo shadowi;
 
             bool shadowed = false;
             if (scene.getIntersection(shadowRay, &shadowi)) {
-                if (shadowi.t < distanceToLight - 0.0001f) {
+                if (shadowi.t < distanceToLight - 0.001f) {
                     shadowed = true;
                 }
             }
