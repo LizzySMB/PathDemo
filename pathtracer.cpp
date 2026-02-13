@@ -233,7 +233,7 @@ Vector3f PathTracer::radiance(Vector3f& x, Vector3f& w, bool countEmitted, const
                 // other specular glossy notes. split with diffuse from same material by specProb
                 float specProb = spec.norm() / (diffuse.norm() + spec.norm());
                 // for specular only like in image, uncomment:
-                // specProb = 1.f;
+                //specProb = 1.f;
 
                 if (distribution(generator) < specProb) {
                     float shininess = mat.shininess;
@@ -241,14 +241,15 @@ Vector3f PathTracer::radiance(Vector3f& x, Vector3f& w, bool countEmitted, const
                     Vector3f reflected = w - 2.f * w.dot(normal) * normal;
                     reflected.normalize();
 
-                    wi = sampleNextDir(reflected, shininess);
+                    wi = sampleNextDir(normal, shininess);
                     float cosspec = std::max(0.f, wi.dot(reflected));
 
-                    // phong brdf with importance sampling
+                    // phong brdf
                     brdf = spec * (shininess + 2.f) / (2.f * M_PI) * pow(cosspec, shininess);
 
                     // pdf for specular with importance sampling
-                    pdf = (shininess + 1.f) / (2.f * M_PI) * pow(cosspec, shininess);
+                  //  pdf = (shininess + 1.f) / (2.f * M_PI) * pow(cosspec, shininess);
+                    pdf = 1.f / (2.f * M_PI);
                     pdf *= specProb;
 
                     cos = std::max(0.f, wi.dot(normal));
@@ -295,14 +296,14 @@ Vector3f PathTracer::sampleNextDir(const Vector3f& normal, float shininess) {
     float phi = 2.0f * M_PI * sample1;
     float cosTheta;
     float sinTheta;
-    if (shininess < 0.01f) { // diffuse importance sampling
+  //  if (shininess < 0.01f) { // diffuse importance sampling
         cosTheta = sqrt(1.0f - sample2);
         sinTheta = sqrt(sample2);
-    }
-    else { // specular importance sampling
-        cosTheta = pow(sample2, 1.0f / (shininess + 1.0f));
-        sinTheta = sqrt(1.f - cosTheta * cosTheta);
-    }
+ //   }
+  //  else { // specular importance sampling
+ //       cosTheta = pow(sample2, 1.0f / (shininess + 1.0f));
+  //      sinTheta = sqrt(1.f - cosTheta * cosTheta);
+  //  }
 
 
     Vector3f nextDir(sinTheta * cosf(phi), sinTheta * sinf(phi), cosTheta);
