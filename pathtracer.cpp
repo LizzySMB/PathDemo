@@ -207,6 +207,23 @@ Vector3f PathTracer::radiance(Vector3f& x, Vector3f& w, bool countEmitted, const
                         wi.normalize();
                         Vector3f Li = radiance(hitPoint, refracted, true, scene, nextior);
 
+                        // attenuate refracted paths using Beer-Lambert
+                        // check that we're exiting, not entering
+                        if (ni == ior && previor == ior) {
+                            // absorption as opposite of diffuse color; the darker the object, the more it absorbs
+                            Vector3f absorptionCoeff = Vector3f(1.f, 1.f, 1.f) - diffuse;
+                            absorptionCoeff *= 2.0f;
+
+                            // A = absorption * distance (t) * absorptiveness
+                            // final intensity = initial * e ^ (-absorption * t)
+                            Vector3f attenuation(
+                                exp(-absorptionCoeff.x() * i.t),
+                                exp(-absorptionCoeff.y() * i.t),
+                                exp(-absorptionCoeff.z() * i.t)
+                                );
+
+                            Li = Li.cwiseProduct(attenuation);
+                        }
                         Li = Li.cwiseMin(10.f);
                         L += Li.cwiseProduct(Vector3f(1,1,1)) / ((1.0f - fresnel) * pdf_rr);
                     } else {
