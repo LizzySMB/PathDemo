@@ -80,11 +80,6 @@ void PathTracer::toneMap(QRgb *imageData, std::vector<Vector3f> &intensityValues
             int offset = x + (y * m_width);
             Vector3f color = intensityValues[offset];
 
-            /* I messed around with gamma usage (not sure if I did it right
-             * so it looks a bit different than the brighter expected output
-             * but it should look the first expected output without the gamma
-            **/
-
             float gamma = 1/2.2f;
 
             // Old Mr. Reinhard
@@ -93,7 +88,6 @@ void PathTracer::toneMap(QRgb *imageData, std::vector<Vector3f> &intensityValues
             float colorb = (color[2] * (1 + color[2])) / (color[2] + 1.f);
             color = Vector3f(colorr, colorg, colorb);
             color = color.array().pow(gamma);
-            color = color.cwiseMax(0.f).cwiseMin(1.f);
 
             int r = static_cast<int>(std::min(255.0f, color.x() * 255.0f));
             int g = static_cast<int>(std::min(255.0f, color.y() * 255.0f));
@@ -115,13 +109,18 @@ Vector3f PathTracer::radiance(Vector3f& x, Vector3f& w, bool countEmitted, const
         const tinyobj::real_t *d = mat.diffuse;//Diffuse color as array of floats
         const std::string diffuseTex = mat.diffuse_texname;//Diffuse texture name
 
+        Vector3f diffuse = Vector3f(mat.diffuse[0], mat.diffuse[1], mat.diffuse[2]);
+        Vector3f spec = Vector3f(mat.specular[0], mat.specular[1], mat.specular[2]);
+        Vector3f refrac = Vector3f(mat.transmittance[0], mat.transmittance[1], mat.transmittance[2]);
+        float ior = mat.ior; // material quality i think
+
+        bool isIdealSpecular = diffuse.norm() < 0.1f && spec.norm() > 0.9f;
+
         Vector3f negw = -w;
 
-        L = directLighting(i, negw, scene);
-
-        Vector3f diffuse = Vector3f(mat.diffuse[0], mat.diffuse[1], mat.diffuse[2]);
-
-        Vector3f brdf = diffuse / M_PI;
+        if (!isIdealSpecular) {
+            L = directLighting(i, negw, scene);
+        }
 
         // added russian roulette
 
@@ -129,18 +128,75 @@ Vector3f PathTracer::radiance(Vector3f& x, Vector3f& w, bool countEmitted, const
 
         if (distribution(generator) < pdf_rr && !settings.directLightingOnly) {
 
+            Vector3f brdf;
+            float pdf;
+
             Vector3f hitPoint = x + w * i.t;
             Vector3f normal = t->getNormal(i);
+            Vector3f wi;
+            Vector3f Li;
 
-            Vector3f wi = sampleNextDir(normal);
-            float pdf = std::max(wi.dot(normal), 0.0f) / M_PI;
-            bool isIdealSpecular = diffuse[0] < 0.1f && diffuse[1] < 0.1f && diffuse[2] < 0.1f;
+            float cos;
 
-            Vector3f Li = radiance(hitPoint, wi, isIdealSpecular, scene);
+            // refraction check
+            if (refrac.norm() > 0.1f && ior > 1.f) {
+                // are we going in?
 
-            float cosine = std::max(wi.dot(normal), 0.0f);
+            }
 
-            L += Li.cwiseProduct(brdf) * cosine / (pdf * pdf_rr);
+            // reflective material
+            if (isIdealSpecular) {
+                wi = w - 2.f * w.dot(normal) * normal;
+                brdf = spec;
+                pdf = 1.f;
+                Li = radiance(hitPoint, wi, true, scene);
+                cos = std::abs(wi.dot(normal));
+                L += Li.cwiseProduct(brdf) * cos / (pdf * pdf_rr);
+            }
+            else if (spec.norm() > 0.1f) {
+                // other specular glossy notes. split with diffuse from same material by specProb
+                float specProb = spec.norm() / (diffuse.norm() + spec.norm());
+
+                if (distribution(generator) < specProb) {
+                    float shininess = mat.shininess;
+
+                    wi = sampleNextDir(normal);
+                    Vector3f reflected = w - 2.f * w.dot(normal) * normal;
+                    float cosspec = std::max(0.0f, wi.dot(reflected));
+
+                    // phong brdf
+                    brdf = spec * (shininess + 2.0f) / (2.0f * M_PI) * pow(cosspec, shininess);
+
+                    // pdf for specular
+                    pdf = (shininess + 1.0f) / (2.0f * M_PI) * pow(cosspec, shininess);
+                    pdf *= specProb;
+
+                } else {
+                    // diffuse portion of samples
+                    wi = sampleNextDir(normal);
+                    brdf = diffuse / M_PI;
+                    pdf = std::max(wi.dot(normal), 0.0f) / M_PI;
+                    pdf *= (1.0f - specProb);
+                }
+
+                if (pdf > 0.001f) {
+                    Vector3f Li = radiance(hitPoint, wi, true, scene);
+                    cos = std::max(wi.dot(normal), 0.0f);
+                    L += Li.cwiseProduct(brdf) * cos / (pdf * pdf_rr);
+                }
+            }
+            // normal material
+            else {
+                wi = sampleNextDir(normal);
+
+                brdf = diffuse / M_PI;
+                pdf = std::max(wi.dot(normal), 0.0f) / M_PI;
+
+                Li = radiance(hitPoint, wi, true, scene);
+                cos = std::max(wi.dot(normal), 0.0f);
+                L += Li.cwiseProduct(brdf) * cos / (pdf * pdf_rr);
+
+            }
         }
 
         if (countEmitted) {
@@ -201,7 +257,7 @@ Vector3f PathTracer::directLighting(IntersectionInfo i, Vector3f& w, const Scene
             float sqrt_r1 = sqrt(r1);
             float u = 1.0f - sqrt_r1;
             float v = r2 * sqrt_r1;
-            float w_bary = 1.0f - u - v;
+            float w2 = 1.0f - u - v;
 
             // triangle vertices
             Vector3f v0 = light->getVertices()[0];
@@ -209,7 +265,7 @@ Vector3f PathTracer::directLighting(IntersectionInfo i, Vector3f& w, const Scene
             Vector3f v2 = light->getVertices()[2];
 
             // calculate random point + light direction
-            Vector3f lightPoint = u * v0 + v * v1 + w_bary * v2;
+            Vector3f lightPoint = u * v0 + v * v1 + w2 * v2;
             Vector3f lightDir = lightPoint - i.hit;
             float distanceToLight = lightDir.norm();
             lightDir.normalize();
@@ -225,7 +281,7 @@ Vector3f PathTracer::directLighting(IntersectionInfo i, Vector3f& w, const Scene
 
             bool shadowed = false;
             if (scene.getIntersection(shadowRay, &shadowi)) {
-                if (shadowi.t < distanceToLight - 0.001f) {
+                if (shadowi.t < distanceToLight - 0.0001f) {
                     shadowed = true;
                 }
             }
@@ -239,12 +295,26 @@ Vector3f PathTracer::directLighting(IntersectionInfo i, Vector3f& w, const Scene
                     const tinyobj::material_t& lightMat = light->getMaterial();
                     Vector3f emission = Vector3f(lightMat.emission[0], lightMat.emission[1], lightMat.emission[2]);
 
-                    float lightArea = light->getBBox().surfaceArea();
+                    // light area calculations
+                    Vector3f t = ((v1 - v0).cross(v2 - v0));
+                    float tmag = sqrt(t[0] * t[0] + t[1] * t[1] + t[2] * t[2]);
+                    float lightArea = 0.5f * tmag;
+
                     float pdf = (distanceToLight * distanceToLight) / (lightArea * cosPhiLight);
 
-                    lightVal += emission.cwiseProduct(brdf) * cosTheta / pdf;
-                }
+                    Vector3f diffuseL = emission.cwiseProduct(brdf) * cosTheta / pdf;
 
+
+                    if (spec.norm() > 0.1f) {
+                        float shininess = surfaceMat.shininess;
+                        Vector3f reflected = lightDir - 2.0f * lightDir.dot(normal) * normal;
+                        float speccos = std::max(0.0f, w.dot(reflected));
+
+                        Vector3f specbrdf = spec * (shininess + 2.0f) / (2.0f * M_PI) * pow(speccos, shininess);
+                        diffuseL += emission.cwiseProduct(specbrdf) * cosTheta / pdf;
+                    }
+                    lightVal += diffuseL;
+                }
 
             }
         }
