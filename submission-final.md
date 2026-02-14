@@ -45,11 +45,12 @@ Please link to the lines (in GitHub) where the implementation of these features 
 - [Importance Sampling](https://github.com/brown-cs-224/path-LizzySMB/blob/9abfe56aa43d64077cabee75cab451ee3ba1f4a0/pathtracer.cpp#L319) [pdf here](https://github.com/brown-cs-224/path-LizzySMB/blob/9abfe56aa43d64077cabee75cab451ee3ba1f4a0/pathtracer.cpp#L268)
 - [Depth of Field](https://github.com/brown-cs-224/path-LizzySMB/blob/0a2a78706731c68a299aa17c413c14f1df9bbdb4/pathtracer.cpp#L58)
 - [Attenuate Refracted Paths](https://github.com/brown-cs-224/path-LizzySMB/blob/9abfe56aa43d64077cabee75cab451ee3ba1f4a0/pathtracer.cpp#L210)
+- [Stratified Sampling]()
 
 ### Design Choices
 
 Please list all the features your path tracer implements.
-Diffuse, Glossy, and Mirror Reflections, Refraction with Fresnel reflection, Soft Shadows, Indirect Illumination, Direct Lighting, Russian Roulette Path Termination, Event Splitting, Tone Mapping, Importance Sampling, Depth of Field, and Refracted Path Attenuation.
+Diffuse, Glossy, and Mirror Reflections, Refraction with Fresnel reflection, Soft Shadows, Indirect Illumination, Direct Lighting, Russian Roulette Path Termination, Event Splitting, Tone Mapping, Importance Sampling, Depth of Field, Stratified Sampling, and Refracted Path Attenuation.
 
 ### Extra Features
 
@@ -84,6 +85,18 @@ Focal distance: 1, Lens radius: 0.1
 Focal distance: 0.5, Lens radius: 0.1
 <img width="512" height="512" alt="lens  1, foc  5" src="https://github.com/user-attachments/assets/89983940-fd40-4a02-8943-7384f75d867e" />
 
+
+Stratified sampling; not sure about the effectiveness, but there are slight differences.
+<img width="512" height="512" alt="glossy no strat" src="https://github.com/user-attachments/assets/de8b427c-1251-4b7c-b01a-14e764dfa0fb" />
+<img width="512" height="512" alt="glossy no strat" src="https://github.com/user-attachments/assets/de8b427c-1251-4b7c-b01a-14e764dfa0fb" />
+
+
+<img width="512" height="512" alt="mirror no strat" src="https://github.com/user-attachments/assets/d0428aa0-8ad2-4be6-b8c6-d91742223dff" />
+<img width="512" height="512" alt="mirror no strat" src="https://github.com/user-attachments/assets/d0428aa0-8ad2-4be6-b8c6-d91742223dff" />
+
+
+<img width="512" height="512" alt="refraction no strat" src="https://github.com/user-attachments/assets/a6b69722-e08e-497a-b8e5-52eb2214249b" />
+<img width="512" height="512" alt="refraction no strat" src="https://github.com/user-attachments/assets/a6b69722-e08e-497a-b8e5-52eb2214249b" />
 
 ### Collaboration/References
 Beer-Lambert: https://www.geeksforgeeks.org/physics/beer-lambert-law/
