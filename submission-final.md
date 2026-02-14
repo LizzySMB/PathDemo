@@ -45,7 +45,7 @@ Please link to the lines (in GitHub) where the implementation of these features 
 - [Importance Sampling](https://github.com/brown-cs-224/path-LizzySMB/blob/9abfe56aa43d64077cabee75cab451ee3ba1f4a0/pathtracer.cpp#L319) [pdf here](https://github.com/brown-cs-224/path-LizzySMB/blob/9abfe56aa43d64077cabee75cab451ee3ba1f4a0/pathtracer.cpp#L268)
 - [Depth of Field](https://github.com/brown-cs-224/path-LizzySMB/blob/0a2a78706731c68a299aa17c413c14f1df9bbdb4/pathtracer.cpp#L58)
 - [Attenuate Refracted Paths](https://github.com/brown-cs-224/path-LizzySMB/blob/9abfe56aa43d64077cabee75cab451ee3ba1f4a0/pathtracer.cpp#L210)
-- [Stratified Sampling]()
+- [Stratified Sampling](https://github.com/brown-cs-224/path-LizzySMB/blob/b52056d97aa83fe9e3135a6fb000625ab7d5c342/pathtracer.cpp#L33)
 
 ### Design Choices
 
