@@ -54,6 +54,32 @@ Vector3f PathTracer::tracePixel(int x, int y, const Scene& scene, const Matrix4f
 
     Ray r(p, d);
     r = r.transform(invViewMatrix);
+
+    // depth of field
+
+    bool depthOfField = true;
+
+    if (depthOfField) {
+
+        float lensRadius = .01f;  // size of lens; increase for more blur
+        float focalDistance = 10.f; // camera focal distance; decrease for more blur
+
+        // see where this distance intersects the virtual film plane
+        Vector3f focalPoint = r.o + r.d * focalDistance;
+
+        // sample "disk" to scatter starting location
+        float randtheta = 2.f * M_PI * distribution(generator);
+        float randradius = lensRadius * sqrt(distribution(generator));
+
+        // offset based on sampled radius and angle, converted from camera space
+        Vector3f lensOffset(randradius * cos(randtheta), randradius * sin(randtheta), 0.f);
+        Vector3f worldLensOffset = (invViewMatrix * Vector4f(lensOffset.x(), lensOffset.y(), lensOffset.z(), 0.0f)).head<3>();
+        Vector3f newO = r.o + worldLensOffset;
+        Vector3f newD = (focalPoint - newO).normalized();
+
+        // set to go!
+        return radiance(newO, newD, true, scene, 1.f);
+    }
     return radiance(r.o, r.d, true, scene, 1.f);
 }
 
