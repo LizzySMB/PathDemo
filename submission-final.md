@@ -86,14 +86,19 @@ Focal distance: 0.5, Lens radius: 0.1
 <img width="512" height="512" alt="lens  1, foc  5" src="https://github.com/user-attachments/assets/89983940-fd40-4a02-8943-7384f75d867e" />
 
 
-Stratified sampling; not sure about the effectiveness, but there are slight differences.
+Stratified sampling; not sure about the effectiveness, but there are slight differences. Before and after:
+
 <img width="512" height="512" alt="glossy no strat" src="https://github.com/user-attachments/assets/de8b427c-1251-4b7c-b01a-14e764dfa0fb" />
+<img width="512" height="512" alt="glossy" src="https://github.com/user-attachments/assets/c62a2805-d9fa-47f4-af9a-0d8c28c7c4b8" />
 
 
 <img width="512" height="512" alt="mirror no strat" src="https://github.com/user-attachments/assets/d0428aa0-8ad2-4be6-b8c6-d91742223dff" />
+<img width="512" height="512" alt="mirror" src="https://github.com/user-attachments/assets/4ee0bc25-6014-440b-985d-316f06665e4b" />
 
 
 <img width="512" height="512" alt="refraction no strat" src="https://github.com/user-attachments/assets/a6b69722-e08e-497a-b8e5-52eb2214249b" />
+<img width="512" height="512" alt="refraction" src="https://github.com/user-attachments/assets/f21d300d-b741-4ac0-aa7f-e71ea0e72235" />
+
 
 ### Collaboration/References
 Beer-Lambert: https://www.geeksforgeeks.org/physics/beer-lambert-law/
