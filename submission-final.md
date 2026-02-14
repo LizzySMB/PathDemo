@@ -33,17 +33,17 @@ Please do not attempt to duplicate the given reference images; we have tools to 
 
 Please link to the lines (in GitHub) where the implementation of these features start:
 
-- [Diffuse Reflection]()
-- [Glossy Reflection]()
-- [Mirror Reflection]()
-- [Refraction (with Fresnel refletion)]()
-- [Soft Shadows]()
-- [Illumination]()
-- [Russian Roulette path termination]()
-- [Event Splitting]()
-- [Tone Mapping]()
-- [Importance Sampling]() [pdfs here]()
-- [Attenuate Refracted Paths]()
+- [Diffuse Reflection](https://github.com/brown-cs-224/path-LizzySMB/blob/9abfe56aa43d64077cabee75cab451ee3ba1f4a0/pathtracer.cpp#L287)
+- [Glossy Reflection](https://github.com/brown-cs-224/path-LizzySMB/blob/9abfe56aa43d64077cabee75cab451ee3ba1f4a0/pathtracer.cpp#L248)
+- [Mirror Reflection](https://github.com/brown-cs-224/path-LizzySMB/blob/9abfe56aa43d64077cabee75cab451ee3ba1f4a0/pathtracer.cpp#L242)
+- [Refraction (with Fresnel refletion)](https://github.com/brown-cs-224/path-LizzySMB/blob/9abfe56aa43d64077cabee75cab451ee3ba1f4a0/pathtracer.cpp#L159)
+- [Soft Shadows](https://github.com/brown-cs-224/path-LizzySMB/blob/9abfe56aa43d64077cabee75cab451ee3ba1f4a0/pathtracer.cpp#L395)
+- [Illumination](https://github.com/brown-cs-224/path-LizzySMB/blob/9abfe56aa43d64077cabee75cab451ee3ba1f4a0/pathtracer.cpp#L109)
+- [Russian Roulette path termination](https://github.com/brown-cs-224/path-LizzySMB/blob/9abfe56aa43d64077cabee75cab451ee3ba1f4a0/pathtracer.cpp#L145)
+- [Event Splitting](https://github.com/brown-cs-224/path-LizzySMB/blob/9abfe56aa43d64077cabee75cab451ee3ba1f4a0/pathtracer.cpp#L140)
+- [Tone Mapping](https://github.com/brown-cs-224/path-LizzySMB/blob/9abfe56aa43d64077cabee75cab451ee3ba1f4a0/pathtracer.cpp#L84)
+- [Importance Sampling](https://github.com/brown-cs-224/path-LizzySMB/blob/9abfe56aa43d64077cabee75cab451ee3ba1f4a0/pathtracer.cpp#L319) [pdf here](https://github.com/brown-cs-224/path-LizzySMB/blob/9abfe56aa43d64077cabee75cab451ee3ba1f4a0/pathtracer.cpp#L268)
+- [Attenuate Refracted Paths](https://github.com/brown-cs-224/path-LizzySMB/blob/9abfe56aa43d64077cabee75cab451ee3ba1f4a0/pathtracer.cpp#L210)
 
 ### Design Choices
 
