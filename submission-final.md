@@ -88,14 +88,11 @@ Focal distance: 0.5, Lens radius: 0.1
 
 Stratified sampling; not sure about the effectiveness, but there are slight differences.
 <img width="512" height="512" alt="glossy no strat" src="https://github.com/user-attachments/assets/de8b427c-1251-4b7c-b01a-14e764dfa0fb" />
-<img width="512" height="512" alt="glossy no strat" src="https://github.com/user-attachments/assets/de8b427c-1251-4b7c-b01a-14e764dfa0fb" />
 
 
 <img width="512" height="512" alt="mirror no strat" src="https://github.com/user-attachments/assets/d0428aa0-8ad2-4be6-b8c6-d91742223dff" />
-<img width="512" height="512" alt="mirror no strat" src="https://github.com/user-attachments/assets/d0428aa0-8ad2-4be6-b8c6-d91742223dff" />
 
 
-<img width="512" height="512" alt="refraction no strat" src="https://github.com/user-attachments/assets/a6b69722-e08e-497a-b8e5-52eb2214249b" />
 <img width="512" height="512" alt="refraction no strat" src="https://github.com/user-attachments/assets/a6b69722-e08e-497a-b8e5-52eb2214249b" />
 
 ### Collaboration/References
