@@ -43,12 +43,13 @@ Please link to the lines (in GitHub) where the implementation of these features 
 - [Event Splitting](https://github.com/brown-cs-224/path-LizzySMB/blob/9abfe56aa43d64077cabee75cab451ee3ba1f4a0/pathtracer.cpp#L140)
 - [Tone Mapping](https://github.com/brown-cs-224/path-LizzySMB/blob/9abfe56aa43d64077cabee75cab451ee3ba1f4a0/pathtracer.cpp#L84)
 - [Importance Sampling](https://github.com/brown-cs-224/path-LizzySMB/blob/9abfe56aa43d64077cabee75cab451ee3ba1f4a0/pathtracer.cpp#L319) [pdf here](https://github.com/brown-cs-224/path-LizzySMB/blob/9abfe56aa43d64077cabee75cab451ee3ba1f4a0/pathtracer.cpp#L268)
+- [Depth of Field](https://github.com/brown-cs-224/path-LizzySMB/blob/0a2a78706731c68a299aa17c413c14f1df9bbdb4/pathtracer.cpp#L58)
 - [Attenuate Refracted Paths](https://github.com/brown-cs-224/path-LizzySMB/blob/9abfe56aa43d64077cabee75cab451ee3ba1f4a0/pathtracer.cpp#L210)
 
 ### Design Choices
 
 Please list all the features your path tracer implements.
-Diffuse, Glossy, and Mirror Reflections, Refraction with Fresnel reflection, Soft Shadows, Indirect Illumination, Direct Lighting, Russian Roulette Path Termination, Event Splitting, Tone Mapping, Importance Sampling, and Refracted Path Attenuation.
+Diffuse, Glossy, and Mirror Reflections, Refraction with Fresnel reflection, Soft Shadows, Indirect Illumination, Direct Lighting, Russian Roulette Path Termination, Event Splitting, Tone Mapping, Importance Sampling, Depth of Field, and Refracted Path Attenuation.
 
 ### Extra Features
 
@@ -57,11 +58,32 @@ Briefly explain your implementation of any extra features, provide output images
 I implemented importance sampling for clearer images. Here is an example of regular vs. importance sampling on the glossy image.
 
 <img width="512" height="512" alt="glossy_no_is" src="https://github.com/user-attachments/assets/94601c5d-ef2e-4a37-beb6-dd39ee7f2da4" />
+<img width="512" height="512" alt="glossy" src="https://github.com/user-attachments/assets/d64003ab-d3bf-4c1a-a6bc-64ac86cc24ee" />
+
 
 I tried to implement diffuse brdf importance sampling as well, but I'm honestly not sure if what I have there is just regular sampling.
 
 I also used Beer-Lambert absorption to implement attenuated refracted paths. Here's a before and after: 
 <img width="512" height="512" alt="refraction_no_attenuation" src="https://github.com/user-attachments/assets/52ce926e-f9e6-4b35-956a-5af28fd8c798" />
+<img width="512" height="512" alt="refraction" src="https://github.com/user-attachments/assets/6bd38236-7ea0-4098-8a6c-5ed610c0f6ae" />
+
+For depth of field, I added a lens and focal distance that the user can adjust to create different blurs and focuses as the virtual film plane and lens radius are adjusted. Some examples:
+
+Focal distance: 10, Lens radius: 0.01
+<img width="512" height="512" alt="lens  01, foc 10" src="https://github.com/user-attachments/assets/2dd0df31-6da9-42dc-ab88-56852544c2c4" />
+
+Focal distance: 10, Lens radius: 0.1
+<img width="512" height="512" alt="lens  1, foc 10" src="https://github.com/user-attachments/assets/4af77323-592f-47c5-8c42-c01002e0969d" />
+
+Focal distance: 10, Lens radius: 1
+<img width="512" height="512" alt="lens 1, foc 10" src="https://github.com/user-attachments/assets/41e624e5-d302-4704-8911-efc1ddf1924a" />
+
+Focal distance: 1, Lens radius: 0.1
+<img width="512" height="512" alt="lens  1, foc 1" src="https://github.com/user-attachments/assets/b5aab306-d3bc-4d1c-8514-c0c44ec44438" />
+
+Focal distance: 0.5, Lens radius: 0.1
+<img width="512" height="512" alt="lens  1, foc  5" src="https://github.com/user-attachments/assets/89983940-fd40-4a02-8943-7384f75d867e" />
+
 
 ### Collaboration/References
 Beer-Lambert: https://www.geeksforgeeks.org/physics/beer-lambert-law/
