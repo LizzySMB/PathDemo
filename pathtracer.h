@@ -25,7 +25,7 @@ private:
 
     void toneMap(QRgb *imageData, std::vector<Eigen::Vector3f> &intensityValues);
 
-    Eigen::Vector3f tracePixel(int x, int y, const Scene &scene, const Eigen::Matrix4f &invViewMatrix);
+    Eigen::Vector3f tracePixel(int x, int y, const Scene &scene, const Eigen::Matrix4f &invViewMatrix, float jitterX, float jitterY);
     Eigen::Vector3f traceRay(const Ray& r, const Scene &scene);
     Eigen::Vector3f radiance(Eigen::Vector3f& x, Eigen::Vector3f& w, bool countEmitted, const Scene& scene, float previor);
     Eigen::Vector3f sampleNextDir(const Eigen::Vector3f& normal, float shininess);

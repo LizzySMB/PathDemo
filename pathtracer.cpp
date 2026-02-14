@@ -24,29 +24,33 @@ void PathTracer::traceScene(QRgb *imageData, const Scene& scene)
 {
     std::vector<Vector3f> intensityValues(m_width * m_height);
     Matrix4f invViewMat = (scene.getCamera().getScaleMatrix() * scene.getCamera().getViewMatrix()).inverse();
+    int gridSize = (int)ceil(sqrt(settings.samplesPerPixel)); // for stratified sampling, based on pixels to be sampled
     for(int y = 0; y < m_height; ++y) {
         //#pragma omp parallel for
         for(int x = 0; x < m_width; ++x) {
             int offset = x + (y * m_width);
             Vector3f color = Vector3f(0,0,0);
-            for(int s = 0; s < settings.samplesPerPixel; ++s) {
-                color += tracePixel(x, y, scene, invViewMat);
-            }
+            // stratified sampling here
+            // dividing image into grid defined by sample #
+            // for each
+            for(int sy = 0; sy < gridSize; ++sy) {
+                for(int sx = 0; sx < gridSize; ++sx) {
+                    // jitter, previously in tracePixel
+                    float jitterX = (sx + distribution(generator)) / gridSize - 0.5f;
+                    float jitterY = (sy + distribution(generator)) / gridSize - 0.5f;
 
-            intensityValues[offset] = color / (settings.samplesPerPixel);
+                    color += tracePixel(x, y, scene, invViewMat, jitterX, jitterY);
+                }
+            }
+            intensityValues[offset] = color / (gridSize * gridSize);
         }
     }
     toneMap(imageData, intensityValues);
 }
 
-Vector3f PathTracer::tracePixel(int x, int y, const Scene& scene, const Matrix4f &invViewMatrix)
+Vector3f PathTracer::tracePixel(int x, int y, const Scene& scene, const Matrix4f &invViewMatrix, float jitterX, float jitterY)
 {
     Vector3f p(0, 0, 0);
-
-    float jitterX = distribution(generator) - 0.5f;
-    float jitterY = distribution(generator) - 0.5f;
-
-    // to get rid of jagged edges :)
 
     Vector3f d((2.f * (x + 0.5f + jitterX) / m_width) - 1,
                1 - (2.f * (y + 0.5f + jitterY) / m_height), -1);
