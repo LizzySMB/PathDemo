@@ -1,6 +1,7 @@
 ## README - Path Tracer
 
-<img width="512" height="512" alt="image" src="https://github.com/user-attachments/assets/251555e9-d3af-4b38-a013-c693184172d6" />
+<img width="512" height="512" alt="image" src="https://github.com/user-attachments/assets/c0dfbd0a-2899-4fd8-bb58-b4fc63bb53a8" />
+
 
 
 This path tracer uses Monte Carlo sampling with Russian Roulette path termination to render 3D scenes, providing indirect illumination and direct lighting with physically accurate recursive bounce rays that provide soft shadows, color bleeding, caustics, etc. This implementation includes support for diffuse and specular BRDFs, reflection, refraction with Fresnel reflection, refracted path attentuation, and more (longer feature list below).
