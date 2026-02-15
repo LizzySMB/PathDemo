@@ -1,9 +1,6 @@
-### README
+## README - Path Tracer
 
-Path tracing is a simple, elegant Monte Carlo sampling approach to solving the rendering equation. Like ray tracing, it produces images by firing rays from the eye/camera into the scene. Unlike basic ray tracing, it generates recursive bounce rays in a physically accurate manner, making it an unbiased estimator for the rendering equation. Path tracers support a wide variety of interesting visual effects (soft shadows, color bleeding, caustics, etc.), though they may take a long time to converge to a noise-free image.
-
-
-
+<img width="512" height="512" alt="image" src="https://github.com/user-attachments/assets/251555e9-d3af-4b38-a013-c693184172d6" />
 This path tracer uses Monte Carlo sampling with Russian Roulette path termination to render 3D scenes, providing indirect illumination and direct lighting with physically accurate recursive bounce rays that provide soft shadows, color bleeding, caustics, etc. This implementation includes support for diffuse and specular BRDFs, reflection, refraction with Fresnel reflection, refracted path attentuation, and more (longer feature list below).
 
 
